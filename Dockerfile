@@ -1,6 +1,6 @@
 FROM python:3-alpine
 
-MAINTAINER Nathan W. <nathan@frcv.net>
+LABEL maintainer="nathan@frcv.net"
 
 COPY tiddlysaver /tiddlysaver
 
