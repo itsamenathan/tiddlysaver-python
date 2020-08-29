@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
-import argparse
-from http.server import SimpleHTTPRequestHandler, HTTPServer
 import datetime
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 import os
 import shutil
 import sys
-import rotate_backups
+
 import click
+import rotate_backups
+
 
 
 class httpdHandler(SimpleHTTPRequestHandler):
@@ -28,7 +29,11 @@ class httpdHandler(SimpleHTTPRequestHandler):
     def cleanbackups(self, backup_dir):
         location = rotate_backups.coerce_location(backup_dir)
         backup = rotate_backups.RotateBackups(
-            {"minutely": 10, "hourly": 24, "daily": 30, "monthly": 12, "yearly": 7},
+            {"minutely": 10,
+             "hourly": 24,
+             "daily": 30,
+             "monthly": 12,
+             "yearly": 7},
             strict=False,
         )
         backup.rotate_backups(location)
@@ -82,12 +87,9 @@ class httpdHandler(SimpleHTTPRequestHandler):
 def http_serve(bind, port):
     """Script to serve a tiddlywiki saver."""
     httpd = HTTPServer((bind, port), httpdHandler)
-    print(f"Serving HTTP on {bind} port {port} " f"(http://{bind}:{port}/) ...")
+    print(f"Serving HTTP on {bind} port {port} (http://{bind}:{port}/) ...")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
         print("\nKeyboard interrupt received, exiting.")
         sys.exit(0)
-
-if __name__ == "__main__":
-    http_serve()
