@@ -2,13 +2,14 @@
 
 import datetime
 import os
-from http.server import HTTPServer, SimpleHTTPRequestHandler
 import shutil
 import sys
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 import click
 
 import rotate_backups
+
 
 class httpdHandler(SimpleHTTPRequestHandler):
     def makebackup(self, src):
