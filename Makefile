@@ -1,5 +1,5 @@
 NAME = itsamenathan/tiddlysaver-python
-VERSION = 0.1
+VERSION = 1.0.0
 
 .PHONY: all build test tag_latest release ssh
 
@@ -16,7 +16,7 @@ tag_latest:
 
 release: tag_latest
 	@if ! docker images $(NAME) | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME) version $(VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! head -n 1 Changelog.md | grep -q 'release date'; then echo 'Please note the release date in Changelog.md.' && false; fi
-	docker push $(NAME)
-	@echo "*** Don't forget to create a tag. git tag v$(VERSION) && git push origin v$(VERSION)"
+	@if ! grep -q '## \[$(VERSION)\]' CHANGELOG.md; then echo 'Please note the release date in Changelog.md.' && false; fi
+	#docker push $(NAME)
+	#@echo "*** Don't forget to create a tag. git tag v$(VERSION) && git push origin v$(VERSION)"
 
