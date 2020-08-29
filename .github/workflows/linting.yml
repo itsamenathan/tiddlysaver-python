@@ -1,0 +1,17 @@
+name: Linting
+
+on: [push]
+
+jobs:
+  styles:
+    name: Linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v1
+      - uses: whynothugo/python-linting@master
+      - uses: luke142367/Docker-Lint-Action@v1.0.0
+        with:
+          target: Dockerfile
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
