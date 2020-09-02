@@ -16,7 +16,7 @@ class httpdHandler(SimpleHTTPRequestHandler):
         (srcpath, srcfile) = os.path.split(src)
         (srcname, src_ext) = os.path.splitext(srcfile)
 
-        now = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        now = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M")
         backup_dir = f"{srcpath}/backups/{srcname}"
         backup_file = f"{backup_dir}/{srcname}-{now}{src_ext}"
 
@@ -41,6 +41,7 @@ class httpdHandler(SimpleHTTPRequestHandler):
     def do_PUT(self):
         length = int(self.headers["Content-Length"])
         path = self.translate_path(self.path)
+        data = self.rfile.read(int(length))
 
         # Don't save if we inside a backup directory
         if "/backups/" in path:
@@ -53,7 +54,7 @@ class httpdHandler(SimpleHTTPRequestHandler):
         # Make a backup, clean old backups, and overwrite current file
         self.makebackup(path)
         with open(path, "wb") as dst:
-            dst.write(self.rfile.read(length))
+            dst.write(data)
 
         # Return 200
         self.send_response(200, "OK")
