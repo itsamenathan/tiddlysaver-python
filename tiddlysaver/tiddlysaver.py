@@ -4,7 +4,7 @@ import datetime
 import os
 import shutil
 import sys
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 
 import click
 
@@ -57,12 +57,12 @@ class httpdHandler(SimpleHTTPRequestHandler):
             dst.write(data)
 
         # Return 200
-        self.send_response(200, "OK")
+        self.send_response(200)
         self.send_header("Content-Type", "text/html")
         self.end_headers()
 
     def do_OPTIONS(self):
-        self.send_response(200, "OK")
+        self.send_response(200)
         self.send_header("allow", "GET,HEAD,POST,OPTIONS,CONNECT,PUT,DAV,dav")
         self.send_header("x-api-access-type", "file")
         self.send_header("dav", "tw5/put")
@@ -87,7 +87,7 @@ class httpdHandler(SimpleHTTPRequestHandler):
 )
 def http_serve(bind, port):
     """Script to serve a tiddlywiki saver."""
-    httpd = HTTPServer((bind, port), httpdHandler)
+    httpd = ThreadingHTTPServer((bind, port), httpdHandler)
     print(f"Serving HTTP on {bind} port {port} (http://{bind}:{port}/) ...")
     try:
         httpd.serve_forever()
