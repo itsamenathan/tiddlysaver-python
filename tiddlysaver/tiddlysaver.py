@@ -41,7 +41,7 @@ class httpdHandler(SimpleHTTPRequestHandler):
     def do_PUT(self):
         length = int(self.headers["Content-Length"])
         path = self.translate_path(self.path)
-        data = self.rfile.read(int(length))
+        data = self.rfile.read(length)
 
         # Don't save if we inside a backup directory
         if "/backups/" in path:
@@ -52,9 +52,14 @@ class httpdHandler(SimpleHTTPRequestHandler):
             return
 
         # Make a backup, clean old backups, and overwrite current file
-        self.makebackup(path)
-        with open(path, "wb") as dst:
-            dst.write(data)
+        if len(data) == length:
+          self.makebackup(path)
+          with open(path, "wb") as dst:
+              dst.write(data)
+        else:
+           self.send_response(500)
+           self.send_header("Content-Type", "text/html")
+           self.end_headers()
 
         # Return 200
         self.send_response(200)
