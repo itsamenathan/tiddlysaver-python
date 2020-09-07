@@ -1,5 +1,5 @@
 NAME = itsamenathan/tiddlysaver-python
-VERSION = 1.0.2
+VERSION = 1.0.0
 
 .PHONY: all build test tag_latest release ssh
 

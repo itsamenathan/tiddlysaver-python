@@ -2,7 +2,7 @@ FROM python:3-alpine
 
 LABEL maintainer="nathan@frcv.net"
 
-COPY tiddlysaver /tiddlysaver
+COPY . /tiddlysaver
 
 RUN pip install /tiddlysaver && \
     mkdir /tiddlywiki
@@ -13,4 +13,4 @@ VOLUME /tiddlywiki
 
 EXPOSE 8000
 
-CMD ["tiddlysaver"]
+CMD ["gunicorn", "tiddlysaver:create_app()"]

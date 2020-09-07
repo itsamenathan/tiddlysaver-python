@@ -15,6 +15,7 @@ This is a python server for serving and saving tiddlywiki html files.  It will h
   * Saves 30 daily backups
   * Saves 12 monthly backups
   * Saves 7 yearly backups
+* Uses [flask](https://flask.palletsprojects.com/) web framework
 
 ## Running
 
@@ -23,23 +24,27 @@ This is a python server for serving and saving tiddlywiki html files.  It will h
 The image will run tiddlysaver from `/tiddlywiki`.
 
 ```
-$ docker run -ti --rm -v $PWD/tiddlywiki:/tiddlywiki itsamenathan/tiddlysaver-python:latest
+$ docker run -ti --rm 
+             -e GUNICORN_CMD_ARGS="--bind=0.0.0.0:8000 --access-logfile=-" 
+             -p 8000:8000 
+             -v $PWD/tiddlywiki:/tiddlywiki 
+             itsamenathan/tiddlysaver-python:latest
 ```
 
 ### Python
 
 ```
-$ pip install tiddlysaver
-$ tiddlysaver --help
+$ pip install .
+$ gunicorn -b 0.0.0.0:8000  "tiddlysaver:create_app()"
 ```
 
-## Options
+## Development
 
-### CLI
-`-b, --bind ADDRESS` - Specify alternate bind address [default: 127.0.0.0]
-`-p, --port INTEGER` - Specify alternate port [default: 8000]
+### Running
 
-### Environment Variables
-
-`BIND_HOST` - Specify alternate bind address [default: 127.0.0.0]
-`BIND_PORT` - Specify alternate port [default: 8000] 
+```
+$ pip install -e .
+$ export FLASK_APP=tiddlysaver
+$ export FLASK_ENV=development
+$ flask run --host 0.0.0.0 --port 8000
+```
