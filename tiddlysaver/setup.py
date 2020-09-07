@@ -6,6 +6,8 @@ setup(
     py_modules=['tiddlysaver'],
     install_requires=[
         'click',
+        'flask',
+        'flask-autoIndex',
         'rotate-backups',
     ],
     entry_points='''

@@ -1,77 +1,62 @@
-#!/usr/bin/env python3
-
 import datetime
 import os
 import shutil
 import sys
-from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+
+from flask import Flask, request
+from flask_autoindex import AutoIndex
 
 import click
 
 import rotate_backups
 
+app = Flask(__name__)
 
-class httpdHandler(SimpleHTTPRequestHandler):
-    def makebackup(self, src):
-        (srcpath, srcfile) = os.path.split(src)
-        (srcname, src_ext) = os.path.splitext(srcfile)
 
-        now = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M")
-        backup_dir = f"{srcpath}/backups/{srcname}"
-        backup_file = f"{backup_dir}/{srcname}-{now}{src_ext}"
+def makebackup(src):
+    src = f".{src}"
+    (srcpath, srcfile) = os.path.split(src)
+    (srcname, src_ext) = os.path.splitext(srcfile)
 
-        if not os.path.exists(backup_dir):
-            os.makedirs(backup_dir)
-        shutil.copyfile(src, backup_file)
+    now = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M")
+    backup_dir = f"{srcpath}/backups/{srcname}"
+    backup_file = f"{backup_dir}/{srcname}-{now}{src_ext}"
 
-        self.cleanbackups(backup_dir)
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+    shutil.copyfile(src, backup_file)
 
-    def cleanbackups(self, backup_dir):
-        location = rotate_backups.coerce_location(backup_dir)
-        backup = rotate_backups.RotateBackups(
-            {"minutely": 10,
-             "hourly": 24,
-             "daily": 30,
-             "monthly": 12,
-             "yearly": 7},
-            strict=False,
-        )
-        backup.rotate_backups(location)
+    return backup_file
 
-    def do_PUT(self):
-        length = int(self.headers["Content-Length"])
-        path = self.translate_path(self.path)
-        data = self.rfile.read(length)
 
-        # Don't save if we inside a backup directory
-        if "/backups/" in path:
-            print("ERROR: Do not save into a backup directory")
-            self.send_response(403)
-            self.send_header("Content-Type", "text/html")
-            self.end_headers()
-            return
+def cleanbackups(backup_dir):
+    location = rotate_backups.coerce_location(backup_dir)
+    backup = rotate_backups.RotateBackups(
+        {"minutely": 10, "hourly": 24, "daily": 30, "monthly": 12, "yearly": 7},
+        strict=False,
+    )
+    backup.rotate_backups(location)
 
-        # Make a backup, clean old backups, and overwrite current file
-        if len(data) == length:
-          self.makebackup(path)
-          with open(path, "wb") as dst:
-              dst.write(data)
-        else:
-           self.send_response(500)
-           self.send_header("Content-Type", "text/html")
-           self.end_headers()
 
-        # Return 200
-        self.send_response(200)
-        self.send_header("Content-Type", "text/html")
-        self.end_headers()
+@app.route("/<path:file_path>", methods=["OPTIONS"])
+def options(file_path): # pylint: disable=unused-argument
+    return "", 200, {"dav": "tw5/put"}
 
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header("allow", "GET,HEAD,POST,OPTIONS,CONNECT,PUT,DAV,dav")
-        self.send_header("x-api-access-type", "file")
-        self.send_header("dav", "tw5/put")
-        self.end_headers()
+
+@app.route("/<path:file_path>", methods=["PUT"])
+def put_file(file_path):
+    data = request.get_data()
+
+    # Don't save if we inside a backup directory
+    if "backups/" in request.path:
+        print("ERROR: Do not save into a backup directory")
+        return "Do not save into a backup directory", 403
+
+    backup_file = makebackup(request.path)
+    cleanbackups(os.path.dirname(backup_file))
+    with open(file_path, "wb") as dst:
+        dst.write(data)
+    return "OK"
 
 
 @click.command()
@@ -91,11 +76,7 @@ class httpdHandler(SimpleHTTPRequestHandler):
     help="Specify alternate port [default: 8000]",
 )
 def http_serve(bind, port):
-    """Script to serve a tiddlywiki saver."""
-    httpd = ThreadingHTTPServer((bind, port), httpdHandler)
-    print(f"Serving HTTP on {bind} port {port} (http://{bind}:{port}/) ...")
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        print("\nKeyboard interrupt received, exiting.")
-        sys.exit(0)
+  """Script to serve a tiddlywiki saver."""
+  # AutoIndex takes care of GET routes on / and /<path:file_path>
+  AutoIndex(app, browse_root=os.path.curdir)
+  app.run(host=bind, port=port)
