@@ -51,6 +51,7 @@ flask run --host 0.0.0.0 --port 8000
 ```
 
 ### Linting
+
 ```bash
 docker run -e RUN_LOCAL=true -v ${PWD}:/tmp/lint github/super-linter
 ```
