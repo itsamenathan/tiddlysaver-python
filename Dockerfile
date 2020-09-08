@@ -4,6 +4,7 @@ LABEL maintainer="nathan@frcv.net"
 
 COPY . /tiddlysaver
 
+# hadolint ignore=DL3013
 RUN pip install /tiddlysaver && \
     mkdir /tiddlywiki
 

@@ -3,10 +3,10 @@ import datetime
 import os
 import shutil
 
-from flask import Flask, request
-from flask_autoindex import AutoIndex
+from flask import Flask, request  # pylint: disable=import-error
+from flask_autoindex import AutoIndex  # pylint: disable=import-error
 
-import rotate_backups
+import rotate_backups  # pylint: disable=import-error
 
 
 def create_app():
