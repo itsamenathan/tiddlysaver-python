@@ -25,10 +25,10 @@ host files from its current directory.  It will also save files there as well.
 The image will run tiddlysaver from `/tiddlywiki`.
 
 ```bash
-docker run -ti --rm
-           -e GUNICORN_CMD_ARGS="--bind=0.0.0.0:8000 --access-logfile=-"
-           -p 8000:8000
-           -v $PWD/tiddlywiki:/tiddlywiki
+docker run -ti --rm \
+           -e GUNICORN_CMD_ARGS="--bind=0.0.0.0:8000 --access-logfile=-" \
+           -p 8000:8000 \
+           -v $PWD/tiddlywiki:/tiddlywiki \
            itsamenathan/tiddlysaver-python:latest
 ```
 
