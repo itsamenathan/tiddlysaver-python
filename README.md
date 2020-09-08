@@ -2,7 +2,8 @@
 
 [![GitHub last commit](https://img.shields.io/github/last-commit/itsamenathan/tiddlysaver-python)](https://github.com/itsamenathan/tiddlysaver-python) [![Docker Automated build](https://img.shields.io/docker/cloud/automated/itsamenathan/tiddlysaver-python)](https://hub.docker.com/r/itsamenathan/tiddlysaver-python) ![Docker Automated build](https://img.shields.io/docker/image-size/itsamenathan/tiddlysaver-python?sort=semver)
 
-This is a python server for serving and saving tiddlywiki html files.  It will host files from its current directory.  It will also save files there as well.
+This is a python server for serving and saving tiddlywiki html files.  It will
+host files from its current directory.  It will also save files there as well.
 
 ## Features
 
@@ -47,4 +48,9 @@ pip install -e .
 export FLASK_APP=tiddlysaver
 export FLASK_ENV=development
 flask run --host 0.0.0.0 --port 8000
+```
+
+### Linting
+```bash
+docker run -e RUN_LOCAL=true -v ${PWD}:/tmp/lint github/super-linter
 ```
