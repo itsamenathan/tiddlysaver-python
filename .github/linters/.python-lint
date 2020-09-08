@@ -1,0 +1,3 @@
+ignored-modules=flask,
+                flask_autoindex,
+                rotate_backups
